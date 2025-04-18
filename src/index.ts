@@ -31,7 +31,7 @@ export default {
 		let graphqlQuery = {
 			query: `
 				query CollectionTokens($limit: Int!, $createdAt: BigInt!) {
-					collectionTokens(orderBy: createdAt, orderDirection: desc, first: $limit, where: { createdAt_lt: $createdAt }) {
+					collectionTokens(orderBy: createdAt, orderDirection: asc, first: $limit, where: { createdAt_gt: $createdAt }) {
 						id
 						createdAt
 					}
@@ -44,7 +44,7 @@ export default {
 			graphqlQuery = {
 				query: `
 					query CollectionTokens($limit: Int!) {
-						collectionTokens(orderBy: createdAt, orderDirection: desc, first: $limit) {
+						collectionTokens(orderBy: createdAt, orderDirection: asc, first: $limit) {
 							id
 							createdAt
 						}
