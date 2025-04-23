@@ -70,7 +70,7 @@ export default {
 		const { data } = await response.json();
 
 		const formattedResult = data.collectionTokens.map((result: any) => ({
-			chainId: 8543,
+			chainId: 8453,
 			address: result.id,
 			launchTime: result.createdAt,
 			orderId: result.createdAt,
