@@ -2,7 +2,7 @@
  * Welcome to Cloudflare Workers! This is your first worker.
  *
  * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
+ * - Open a browser tab at http://lbocalhost:8787/ to see your worker in action
  * - Run `npm run deploy` to publish your worker
  *
  * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
@@ -21,6 +21,7 @@ export default {
 		const GRAPHQL_ENDPOINT = 'https://g.flayerlabs.xyz/flaunch/base-mainnet';
 
 		let limit = parseInt(url.searchParams.get('limit') || '1000', 10);
+		let creator = url.searchParams.get('creator') || '';
 		const orderId = parseInt(url.searchParams.get('orderId') || '0', 10);
 
 		// We max out our limit at 1000
@@ -28,31 +29,29 @@ export default {
 			limit = 1000;
 		}
 
-		let graphqlQuery = {
+		// Build the dynamic 'where' object
+		const where: any = {};
+		if (orderId > 0) where.createdAt_gt = orderId;
+		if (creator) where.collection_ = { owner: creator };
+
+		const graphqlQuery = {
 			query: `
-				query CollectionTokens($limit: Int!, $createdAt: BigInt!) {
-					collectionTokens(orderBy: createdAt, orderDirection: asc, first: $limit, where: { createdAt_gt: $createdAt }) {
+				query CollectionTokens($limit: Int!, $where: CollectionToken_filter) {
+					collectionTokens(orderBy: createdAt, orderDirection: asc, first: $limit, where: $where) {
 						id
+						collection {
+							owner {
+								id
+							}
+						}
 						createdAt
 					}
 				}
 			`,
-			variables: { limit: limit, createdAt: orderId },
+			variables: { limit, where },
 		};
 
-		if (orderId == 0) {
-			graphqlQuery = {
-				query: `
-					query CollectionTokens($limit: Int!) {
-						collectionTokens(orderBy: createdAt, orderDirection: asc, first: $limit) {
-							id
-							createdAt
-						}
-					}
-				`,
-				variables: { limit: limit },
-			};
-		}
+		console.log(graphqlQuery);
 
 		const response = await fetch(GRAPHQL_ENDPOINT, {
 			method: 'POST',
@@ -72,6 +71,7 @@ export default {
 		const formattedResult = data.collectionTokens.map((result: any) => ({
 			chainId: 8453,
 			address: result.id,
+			creator: result.collection.owner.id,
 			launchTime: result.createdAt,
 			orderId: result.createdAt,
 		}));

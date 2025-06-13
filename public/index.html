@@ -13,6 +13,7 @@
 	<body>
 		<h1>Flaunch Token List</h1>
 		<ul>
+			<li>?creator=<code>Address of a wallet</code></li>
 			<li>?limit=<code>Value between 1 and 1000</code></li>
 			<li>?orderId=<code>The orderId to find results after</code></li>
 		</ul>
@@ -22,6 +23,7 @@
 				<tr>
 					<th>Chain ID</th>
 					<th>Address</th>
+					<th>Creator</th>
 					<th>Launch Time</th>
 					<th>Order ID</th>
 				</tr>
@@ -31,9 +33,10 @@
 		<script>
 			const params = new URLSearchParams(window.location.search);
 			const limit = parseInt(params.get('limit') || '250', 10);
+			const creator = params.get('creator') || '';
 			const orderId = parseInt(params.get('orderId') || '0', 10);
 
-			fetch(`/tokens?limit=${limit}&orderId=${orderId}`)
+			fetch(`/tokens?limit=${limit}&orderId=${orderId}&creator=${creator}`)
 				.then((resp) => resp.json())
 				.then((data) => {
 					const tbody = document.getElementById('resultsBody');
@@ -42,6 +45,7 @@
 						row.innerHTML = `
 							<td>[${item.chainId}] Base Mainnet</td>
 							<td><a href="https://basescan.org/address/${item.address}" target="_blank"><code>${item.address}</code></a></td>
+							<td><a href="https://basescan.org/address/${item.creator}" target="_blank"><code>${item.creator}</code></a></td>
 							<td>${new Date(item.launchTime * 1000).toLocaleString()}</td>
 							<td>${item.orderId}</td>
 						`;
