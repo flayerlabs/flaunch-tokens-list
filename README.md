@@ -143,9 +143,37 @@ The worker will be available at `http://localhost:8787`
 
 ### Deploy
 
-```bash
-npm run deploy
-```
+This Worker is deployed to Cloudflare via [Wrangler](https://developers.cloudflare.com/workers/wrangler/).
+
+1. **Install dependencies** (first time only):
+
+   ```bash
+   npm install
+   ```
+
+2. **Authenticate with Cloudflare** (first time only — opens a browser for OAuth):
+
+   ```bash
+   npx wrangler login
+   ```
+
+   Alternatively, set a `CLOUDFLARE_API_TOKEN` environment variable for non-interactive / CI deploys.
+
+3. **(Optional) Preview the change locally** before pushing it live:
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Deploy to Cloudflare Workers**:
+
+   ```bash
+   npm run deploy
+   ```
+
+   This runs `wrangler deploy`, which bundles `src/index.ts` (entrypoint defined in `wrangler.jsonc`) and publishes it to the `flaunch-tokens-list` Worker. On success, Wrangler prints the deployed URL and version ID.
+
+5. **Verify the deployment** by hitting the live `/tokens` endpoint and confirming the response.
 
 ## Technical Details
 
